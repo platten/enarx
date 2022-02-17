@@ -1,6 +1,6 @@
 [package]
 name = "shim-sev"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["The Enarx Project Developers"]
 edition = "2021"
 license = "Apache-2.0"
@@ -14,17 +14,17 @@ gdb = [ "gdbstub", "gdbstub_arch", "dbg" ]
 dbg = []
 
 [dependencies]
-compiler_builtins = { version = "0.1.67", default-features = false, features = [ "mem" ] }
-x86_64 = { version = "0.14.7", default-features = false, features = ["instructions", "inline_asm"] }
+compiler_builtins = { version = "0.1.68", default-features = false, features = [ "mem" ] }
+x86_64 = { version = "0.14.8", default-features = false, features = ["instructions", "inline_asm"] }
 gdbstub_arch = { version = "0.1.1" , default-features = false, optional = true }
 gdbstub = { version = "0.5.0" , default-features = false, optional = true }
-goblin = { version = "0.4", default-features = false, features = [ "elf64" ] }
+goblin = { version = "0.5", default-features = false, features = [ "elf64" ] }
 crt0stack = { version = "0.1", default-features = false }
 spinning = { version = "0.1", default-features = false }
-libc = { version = "0.2.117", default-features = false }
+libc = { version = "0.2.118", default-features = false }
 primordial = "0.4"
-sallyport = { version = "0.1.0", git = "https://github.com/enarx/sallyport", rev = "fa4c6eea1c8dab54a8b8843a498b6fb883c006dd" }
-xsave = { git = "https://github.com/enarx/xsave", rev = "4819a862953c114a69f1ff7153b41bb558f96365" }
+sallyport = { version = "0.2.0" }
+xsave = { version = "2.0.2" }
 noted = "1.0.0"
 nbytes = "0.1"
 rcrt1 = "1.0.0"
