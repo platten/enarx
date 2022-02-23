@@ -7,8 +7,9 @@ jobs:
     steps:
     - name: auto-merge
       id: auto-merge
-      run: DEBUG=api gh pr merge --auto --rebase $PR_URL
+      run: DEBUG=api gh pr merge "$PR_URL" --auto --rebase --repo "$REPO"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         PR_URL: ${{ github.event.pull_request.html_url }}
+        REPO: ${{ github.repository }}
 
