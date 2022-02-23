@@ -1,11 +1,14 @@
 name: pr
-on: pull_request_target
+on:
+  pull_request:
+    types: [opened, reopened, edited, ready_for_review, synchronize]
 
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
     steps:
     - name: auto-merge
+      if: github.event.review.state == 'approved'
       id: auto-merge
       run: DEBUG=api gh pr merge --auto --rebase $PR_URL
       env:
