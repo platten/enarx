@@ -16,7 +16,7 @@
 
         rust = fenix.packages."${system}".fromToolchainFile {
           file = ./rust-toolchain.toml;
-          sha256 = "sha256-tBwy9v6pwct/riRxF9mSt6VmdL3KzmKHtBNTyFgbfqk=";
+          sha256 = "sha256-GdF5RfwVAHmgEpiGNXoNxaNuIPkiyiuV791O2lOAuBs=";
         };
 
         buildInputs = (with pkgs; [
