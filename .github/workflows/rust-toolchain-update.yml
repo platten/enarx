@@ -1,0 +1,36 @@
+on:
+  workflow_dispatch:
+    branches: [ main ]
+  schedule:
+    - cron: '15 4 * * 4'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+name: rust-toolchain-update
+jobs:
+  create-pr:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Generate rust toolchain snapshot version
+        id: toolchain_version
+        run: echo "::set-output name=toolchain_version::nightly-$(date +%Y-%m-%d)"
+      - uses: actions/checkout@v2.4.0
+      - uses: cachix/install-nix-action@v16
+      - name: Update rust toolchain to ${{ steps.toolchain_version.outputs.toolchain_version }}
+        run: helper/bump-toolchain.sh 
+        shell: bash
+      - name: Create pull request
+        uses: enarx/create-pull-request@v3
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          commit-message: "chore(deps): bump rust toolchain to version ${{ steps.toolchain_version.outputs.toolchain_version }}"
+          title: "chore(deps): bump rust toolchain to version ${{ steps.toolchain_version.outputs.toolchain_version }}"
+          body: "chore(deps): bump rust toolchain to version ${{ steps.toolchain_version.outputs.toolchain_version }}"
+          labels: dependencies
+          signoff: true
+          branch: chore/update-rust-toolchain
+          head: ${{ github.ref }}
+          base: main
+          add-paths: |
+            rust-toolchain.toml
+            flake.nix
