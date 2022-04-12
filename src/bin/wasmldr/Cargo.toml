@@ -12,7 +12,7 @@ gdb = []
 dbg = []
 
 [dependencies]
-wasmtime = { version = "0.35.2", default-features = false, features = ["cranelift", "pooling-allocator"] }
+wasmtime = { version = "0.35.3", default-features = false, features = ["cranelift", "pooling-allocator"] }
 wasmtime-wasi = { version = "0.35.2", default-features = false, features = ["sync"] }
 wasi-common = { version = "0.35.2", default-features = false }
 wiggle = { version = "0.35.2", default-features = false }
