@@ -19,7 +19,7 @@ wiggle = { version = "0.35.2", default-features = false }
 cap-std = "0.24.2"
 anyhow = "1.0"
 env_logger = { version = "0.9", default-features = false }
-toml = "0.5.8"
+toml = "0.5.9"
 serde = { version = "1.0", features = ["derive"] }
 rustls = "0.20.4"
 webpki-roots = "0.22.2"
