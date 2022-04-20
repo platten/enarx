@@ -1,0 +1,41 @@
+#
+# Code blocks for docs/templates/Installation/Setup.md.tpl
+#
+
+export BLOCK_fedora_setup=$(cat << '#SCRIPT-END#'
+    $ sudo dnf install -y git curl gcc pkg-config openssl-devel musl-gcc
+#SCRIPT-END#
+)
+
+export BLOCK_centos8_setup=$(cat << '#SCRIPT-END#'
+    $ sudo dnf copr enable ngompa/musl-libc
+    $ sudo dnf install -y git curl gcc-toolset-9 openssl-devel musl-gcc
+    $ source "/opt/rh/gcc-toolset-9/enable"
+#SCRIPT-END#
+)
+
+export BLOCK_centos7_step1=$(cat << '#SCRIPT-END#'
+    $ sudo yum install -y centos-release-scl-rh
+#SCRIPT-END#
+)
+
+export BLOCK_centos7_step2=$(cat << '#SCRIPT-END#'
+    $ sudo yum install -y yum-plugin-copr    
+    $ sudo yum copr enable ngompa/musl-libc
+    $ sudo yum install -y git curl devtoolset-9 openssl-devel musl-gcc
+    $ source "/opt/rh/gcc-toolset-9/enable"
+#SCRIPT-END#
+)
+
+export BLOCK_debian_setup=$(cat << '#SCRIPT-END#'
+    $ sudo apt update
+    $ sudo apt install -y git curl gcc pkg-config libssl-dev musl-tools python3-minimal
+#SCRIPT-END#
+)
+
+export BLOCK_rust_install=$(cat << '#SCRIPT-END#'
+    $ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain nightly
+    $ source $HOME/.cargo/env
+    $ rustup target add x86_64-unknown-linux-musl x86_64-unknown-linux-gnu x86_64-unknown-none wasm32-wasi
+#SCRIPT-END#
+)

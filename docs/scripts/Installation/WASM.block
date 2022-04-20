@@ -1,0 +1,41 @@
+#
+# Code blocks for docs/templates/Installation/WASM.md.tpl
+#
+
+export BLOCK_install_wasm_toolchain=$(cat << '#SCRIPT-END#'
+    $ rustup target install wasm32-wasi --toolchain nightly
+#SCRIPT-END#
+)
+
+export BLOCK_create_wasm_program=$(cat << '#SCRIPT-END#'
+    $ cd ~/
+    $ cargo +nightly init --bin hello-world
+    $ cd hello-world
+    $ echo 'fn main() { println!("Hello, Enarx!"); }' > src/main.rs
+    $ cargo +nightly build --release --target=wasm32-wasi
+#SCRIPT-END#
+)
+
+export BLOCK_run_wasm_program=$(cat << '#SCRIPT-END#'
+    $ enarx run target/wasm32-wasi/release/hello-world.wasm
+    […]
+    Hello, Enarx!
+#SCRIPT-END#
+)
+
+export BLOCK_backend_info=$(cat << '#SCRIPT-END#'
+    $ enarx info
+#SCRIPT-END#
+)
+
+export BLOCK_backend_sgx=$(cat << '#SCRIPT-END#'
+    $ enarx run --backend=sgx target/wasm32-wasi/release/hello-world.wasm
+    $ ENARX_BACKEND=sgx enarx run target/wasm32-wasi/release/hello-world.wasm
+#SCRIPT-END#
+)
+
+export BLOCK_backend_kvm=$(cat << '#SCRIPT-END#'
+    $ enarx run --backend=kvm target/wasm32-wasi/release/hello-world.wasm
+    $ ENARX_BACKEND=kvm enarx run target/wasm32-wasi/release/hello-world.wasm
+#SCRIPT-END#
+)

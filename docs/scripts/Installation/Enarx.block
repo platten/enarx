@@ -1,0 +1,34 @@
+#
+# Code blocks for docs/templates/Installation/Enarx.md.tpl
+#
+
+export BLOCK_install_enarx_git=$(cat << '#SCRIPT-END#'
+    $ git clone https://github.com/enarx/enarx
+    $ cd enarx/
+    $ cargo build
+
+    $ cargo install --bin enarx --path ./
+#SCRIPT-END#
+)
+
+export BLOCK_install_enarx_cratesio=$(cat << '#SCRIPT-END#'
+    $ rustup toolchain install nightly-2022-04-11 -t x86_64-unknown-linux-musl,x86_64-unknown-linux-gnu,x86_64-unknown-none
+    $ CARGO_TARGET_X86_64_UNKNOWN_NONE_RUSTFLAGS="-C linker=gcc" cargo +nightly-2022-04-11 -Z bindeps install --bin enarx -- enarx
+#SCRIPT-END#
+)
+
+export BLOCK_install_nix_setup=$(cat << '#SCRIPT-END#'
+    $ git clone https://github.com/enarx/enarx
+    $ cd enarx/
+#SCRIPT-END#
+)
+
+export BLOCK_install_nix_stable=$(cat << '#SCRIPT-END#'
+$ nix-shell
+#SCRIPT-END#
+)
+
+export BLOCK_install_nix_latest=$(cat << '#SCRIPT-END#'
+$ nix-develop
+#SCRIPT-END#
+)
