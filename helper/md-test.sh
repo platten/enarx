@@ -2,11 +2,17 @@
 
 set -eu
 
+# readonly IMAGES=( registry.gitlab.com/enarx/misc-testing/ubuntu-base:latest
+#                   registry.gitlab.com/enarx/misc-testing/debian-base:latest
+#                   registry.gitlab.com/enarx/misc-testing/centos7-base:latest
+#                   registry.gitlab.com/enarx/misc-testing/centos8-base:latest
+#                   registry.gitlab.com/enarx/misc-testing/fedora-base:latest )
 readonly IMAGES=( registry.gitlab.com/enarx/misc-testing/ubuntu-base:latest
-                  registry.gitlab.com/enarx/misc-testing/debian-base:latest
-                  registry.gitlab.com/enarx/misc-testing/centos7-base:latest
-                  registry.gitlab.com/enarx/misc-testing/centos8-base:latest
+                #   registry.gitlab.com/enarx/misc-testing/debian-base:latest
+                #   registry.gitlab.com/enarx/misc-testing/centos7-base:latest
+                #   registry.gitlab.com/enarx/misc-testing/centos8-base:latest
                   registry.gitlab.com/enarx/misc-testing/fedora-base:latest )
+                  
 readonly CONTEXTS_NON_KVM=( git,helloworld crates,helloworld ) 
 readonly CONTEXTS_KVM=( git,helloworld,kvm-helloworld,kvm crates,helloworld,kvm-helloworld,kvm ) 
 # readonly CONTEXTS_SGX=( sgx,git,helloworld,sgx-helloworld sgx,crates,helloworld,sgx-helloworld ) 
