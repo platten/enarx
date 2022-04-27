@@ -8,31 +8,25 @@ concurrency:
 
 jobs:
   main:
-    name: test-docs-basic
-    runs-on: ubuntu-20.04
+    name: test-docs ${{ matrix.document.name }} ${{ matrix.image.name }} ${{ matrix.image.name }}
+    runs-on: ubuntu-latest
     steps:
       - run: sudo apt -o Acquire::Retries=3 update
       - run: sudo apt -o Acquire::Retries=3 install -y musl-tools
       - uses: actions/checkout@v3
-      - run: helper/md-test.sh ./README.md
+      - run: helper/md-test.sh --images="${{ matrix.image.name }}" --context="${{ matrix.image.name }}" --document="${{ matrix.document.name }}" --mode="basic"
         shell: bash
-        env:
-          MODE: basic
-    strategy:
-      fail-fast: false
-  kvm:
-    name: test-docs-kvm ${{ matrix.backend.name }} 
-    runs-on: ${{ matrix.backend.host }}
-    steps:
-      - run: sudo apt -o Acquire::Retries=3 update
-      - run: sudo apt -o Acquire::Retries=3 install -y musl-tools
-      - uses: actions/checkout@v3
-      - run: helper/md-test.sh ./README.md
-        shell: bash
-        env:
-          MODE: kvm
     strategy:
       fail-fast: false
       matrix:
-        backend:
-          - {name: kvm, host: [self-hosted, linux]}
+        images:
+          - name: ubuntu
+          - name: debian
+          - name: fedora
+          - name: centos7
+          - name: centos8
+        contexts:
+          - name: "git,helloworld"
+          - name: "crates,helloworld"
+        document:
+          - name: "README.md"

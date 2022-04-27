@@ -2,22 +2,23 @@
 
 set -eu
 
-# readonly IMAGES=( registry.gitlab.com/enarx/misc-testing/ubuntu-base:latest
-#                   registry.gitlab.com/enarx/misc-testing/debian-base:latest
-#                   registry.gitlab.com/enarx/misc-testing/centos7-base:latest
-#                   registry.gitlab.com/enarx/misc-testing/centos8-base:latest
-#                   registry.gitlab.com/enarx/misc-testing/fedora-base:latest )
-readonly IMAGES=( registry.gitlab.com/enarx/misc-testing/ubuntu-base:latest
-                #   registry.gitlab.com/enarx/misc-testing/debian-base:latest
-                #   registry.gitlab.com/enarx/misc-testing/centos7-base:latest
-                #   registry.gitlab.com/enarx/misc-testing/centos8-base:latest
-                  registry.gitlab.com/enarx/misc-testing/fedora-base:latest )
-                  
-readonly CONTEXTS_NON_KVM=( git,helloworld crates,helloworld ) 
-readonly CONTEXTS_KVM=( git,helloworld,kvm-helloworld,kvm crates,helloworld,kvm-helloworld,kvm ) 
-# readonly CONTEXTS_SGX=( sgx,git,helloworld,sgx-helloworld sgx,crates,helloworld,sgx-helloworld ) 
-# readonly CONTEXTS_SNP=( snp,git,helloworld,kvm-helloworld,kvm snp,crates,helloworld,kvm-helloworld,kvm ) 
+# Constants
 readonly HOMEDIR="/home/user"
+readonly IMAGE_PREFIX="registry.gitlab.com/enarx/misc-testing/"
+readonly IMAGE_SUFFIX="-base:latest"
+
+#
+# Valid parameters examples
+#
+# readonly IMAGES=( ubuntu
+#                   debian
+#                   centos7
+#                   centos8
+#                   fedora )
+# readonly CONTEXTS_BASIC=( git,helloworld crates,helloworld ) # For direct backend
+# readonly CONTEXTS_KVM=( git,helloworld,kvm-helloworld,kvm crates,helloworld,kvm-helloworld,kvm ) # For KVM
+# readonly CONTEXTS_SGX=( sgx,git,helloworld,sgx-helloworld sgx,crates,helloworld,sgx-helloworld ) # TODO For SGX
+# readonly CONTEXTS_SNP=( snp,git,helloworld,kvm-helloworld,kvm snp,crates,helloworld,kvm-helloworld,kvm ) # TODO for SNP 
 
 test_image_kvm() {
     local markdown_doc_path="$(realpath "$1")"
@@ -26,10 +27,10 @@ test_image_kvm() {
     echo -e "\n\nRunning: ${image} (KVM)"
     echo "Context: \"${context}\""
     echo "Markdown Document: \"${markdown_doc_path}\""
-    docker run \
+    time docker run \
         --rm \
         --device /dev/kvm --privileged \
-        -v "${markdown_doc_path}":"$HOMEDIR/Install.md":ro \
+        -v "${markdown_doc_path}":"${HOMEDIR}/Install.md":ro \
         -e CONTEXT="${context}" "${image}"
     status=$?
     if [[ $status -eq 0 ]]; then
@@ -47,9 +48,9 @@ test_image_basic() {
     echo -e "\n\nRunning: ${image}"
     echo "Context: \"${context}\""
     echo "Markdown Document: \"${markdown_doc_path}\""
-    docker run \
+    time docker run \
         --rm \
-        -v "${markdown_doc_path}":"$HOMEDIR/Install.md":ro \
+        -v "${markdown_doc_path}":"${HOMEDIR}/Install.md":ro \
         -e CONTEXT="${context}" "${image}"
     status=$?
     if [[ $status -eq 0 ]]; then
@@ -66,26 +67,98 @@ alias_function () {
     eval "$NEWNAME_FUNC"
 }
 
-MODE=${MODE:-"basic"}
+
+usage() {
+    local PROGNAME=${0##*/}
+
+    cat << EOF
+Usage: $PROGNAME [OPTION]
+  -h, --help             Display this help
+  […]                    TODO
+EOF
+}
+
+TEMP=$(
+    getopt -o '' \
+        --long images: \
+        --long context: \
+        --long document: \
+        --long mode: \
+        --long help \
+        -- "$@"
+    )
+
+if (( $? != 0 )); then
+    usage >&2
+    exit 1
+fi
+
+eval set -- "$TEMP"
+unset TEMP
+
+declare -a IMAGES CONTEXT
+declare MODE DOCUMENT
+
+while true; do
+    case "$1" in
+        '--images')
+            IFS=, read -r -a IMAGES <<<"$2"
+            shift 2; continue
+            ;;
+        '--context')
+            read -r -a CONTEXT <<<"$2"
+            shift 2; continue
+            ;;
+        '--mode')
+            MODE="$2"
+            # if [[ $MODE != "kvm" ]] && [[ $MODE != "basic" ]] && [[ $MODE != "sgx" ]]; then
+            if [[ $MODE != "kvm" ]] && [[ $MODE != "basic" ]] ; then
+              usage
+              exit 1
+            fi
+            shift 2; continue
+            ;;
+        '--document')
+            DOCUMENT="$2"
+            shift 2; continue
+            ;;
+        '--help')
+            usage
+            exit 0
+            ;;
+        '--')
+            shift
+            break
+            ;;
+        *)
+            echo 'Internal error!' >&2
+            exit 1
+            ;;
+    esac
+done
+
 if [[ "$MODE" == "kvm" ]]; then
-    contexts=("${CONTEXTS_KVM[@]}")
     alias_function test_image_kvm test_image
+# elif [[ "$MODE" == "sgx" ]] ; then
+#     alias_function test_image_sgx test_image
 else
-    contexts=("${CONTEXTS_NON_KVM[@]}")
     alias_function test_image_basic test_image
 fi
 
-markdown_document="$1"
-echo "Markdown Document: ${markdown_document}" 
+echo "Markdown Document: ${DOCUMENT}" 
 echo "Contexts:"
-for i in "${contexts[@]}"; do echo "    - $i"; done 
-echo "Images:"
-for i in "${IMAGES[@]}"; do echo "    - $i"; done 
+for context in "${CONTEXT[@]}"; do echo "    - ${context}"; done 
+echo -e "\nImages:"
+for image in "${IMAGES[@]}"; do echo "    - ${IMAGE_PREFIX}${image}${IMAGE_SUFFIX}"; done 
+echo -e "\n\n"
+sleep 2
 
-for context in "${contexts[@]}"; do
+for context in "${CONTEXT[@]}"; do
     for image in "${IMAGES[@]}"; do
-        test_image "${markdown_document}" "${image}"  "${context}"
+        image_name="${IMAGE_PREFIX}${image}${IMAGE_SUFFIX}"
+        test_image "${DOCUMENT}" "${image_name}"  "${context}"
     done
 done
+
 
 echo "Testing completed!"
