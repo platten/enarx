@@ -98,3 +98,5 @@ opt-level = 3
 
 [workspace]
 members = ["crates/*"]
+exclude = ["examples/tcp_server"]
+
