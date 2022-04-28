@@ -50,7 +50,7 @@ static_assertions = { version = "1.1.0", default-features = false }
 vdso = { version = "0.2", default-features = false }
 
 # optional dependencies
-gdbstub = { version = "0.5.0", optional = true, features = ["std"], default-features = false }
+gdbstub = { version = "0.6.1", optional = true, features = ["std"], default-features = false }
 kvm-bindings = { version = "0.5", optional = true, default-features = false }
 kvm-ioctls = { version = "0.11", optional = true, default-features = false }
 sgx = { version = "0.4.1", optional = true, features = ["rcrypto"], default-features = false }
