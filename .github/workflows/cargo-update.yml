@@ -6,9 +6,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 name: cargo-update
-permissions:
-  contents: write
-  pull-requests: write
+
 jobs:
   create-pr:
     runs-on: ubuntu-20.04
@@ -17,12 +15,13 @@ jobs:
         with:
           repository: ${{ github.repository }}
           ref: chore/cargo-update
+          token:  ${{ secrets.BOT_TOKEN }}
       - name: Update dependencies
         id: update_dependencies
         run: |
           git config --global init.defaultBranch main
-          git config user.name  'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git config user.name  'enarxbot[bot]'
+          git config user.email 'enarxbot[bot]@users.noreply.github.com'
           git fetch --all
           git reset --hard origin/main
           for i in $(find . -name Cargo.toml); do cargo update --manifest-path=$i; done
@@ -35,5 +34,5 @@ jobs:
           gh pr create -B main -b "chore(deps): cargo update to update dependencies" \
                                -t "chore(deps): cargo update to update dependencies" -l dependencies
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN:  ${{ secrets.BOT_TOKEN }}
         shell: bash
