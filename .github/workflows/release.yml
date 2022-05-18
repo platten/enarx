@@ -1,6 +1,7 @@
 name: release
 
 on:
+  workflow_dispatch:
   pull_request:
     branches:
     - main
@@ -27,16 +28,18 @@ jobs:
           target: x86_64-unknown-linux-musl
           nix: x86_64-linux
 
-        # TODO: Enable aarch64
+        - os: aarch64-apple-darwin
+          target: aarch64-apple-darwin
+          nix: aarch64-darwin
 
     runs-on: ${{ matrix.platform.os }}
     steps:
     - uses: actions/checkout@v2
     - uses: cachix/install-nix-action@v17
-    - uses: cachix/cachix-action@v10
-      with:
-        name: enarx
-        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+    # - uses: cachix/cachix-action@v10
+    #   with:
+    #     name: enarx
+    #     authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - name: Pre-build setup
       run: ${{ matrix.platform.setup }}
 
@@ -54,8 +57,24 @@ jobs:
         name: enarx-${{ matrix.platform.target }}-oci
         path: enarx-${{ matrix.platform.target }}-oci
 
-  test-bin:
+  universal-binary:
     needs: build
+    runs-on: macos-11
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: enarx-aarch64-apple-darwin
+    - uses: actions/download-artifact@v3
+      with:
+        name: enarx-x86_64-apple-darwin
+    - run: lipo -create ./enarx-aarch64-apple-darwin ./enarx-x86_64-apple-darwin -output ./enarx-universal-darwin
+    - uses: actions/upload-artifact@v3
+      with:
+        name: enarx-universal-darwin
+        path: enarx-universal-darwin
+
+  test-bin:
+    needs: universal-binary
     strategy:
       matrix:
         platform:
@@ -64,6 +83,15 @@ jobs:
 
         - os: ubuntu-20.04
           target: x86_64-unknown-linux-musl
+
+        - os: aarch64-apple-darwin
+          target: aarch64-apple-darwin
+
+        - os: macos-11
+          target: universal-darwin
+
+        - os: aarch64-apple-darwin
+          target: universal-darwin
 
         # TODO: Enable aarch64
 
@@ -93,6 +121,9 @@ jobs:
     - run: docker load < enarx-${{ matrix.platform.target }}-oci
     # TODO: Attempt to run `enarx info` within the loaded container
 
+
+
+
   release:
     if: startsWith(github.ref, 'refs/tags/') && github.event_name == 'push'
     needs: [ build, test-bin, test-oci ]
@@ -103,7 +134,10 @@ jobs:
       with:
         draft: true
         files: |
+          enarx-aarch64-apple-darwin
+          enarx-aarch64-apple-darwin-oci
           enarx-x86_64-apple-darwin
           enarx-x86_64-apple-darwin-oci
           enarx-x86_64-unknown-linux-musl
           enarx-x86_64-unknown-linux-musl-oci
+          enarx-universal-darwin
