@@ -63,7 +63,7 @@ nbytes = { version = "0.1", default-features = false }
 p384 = { version = "0.11.1", features = ["std", "pem", "ecdsa"], default-features = false }
 pkcs8 = { version = "0.9.0", features = ["std", "pem"] }
 primordial = { version = "0.5", features = ["alloc"], default-features = false }
-protobuf = { version = "2.22", default-features = false }
+protobuf = { version = "3.0", default-features = false }
 rand = { version = "0.8", features = ["std", "std_rng"], default-features = false }
 sallyport = { version = "0.6.3", path = "crates/sallyport", default-features = false }
 semver = { version = "1.0", default-features = false }
